@@ -46,7 +46,7 @@
 
                         <div class="col-md-3">
                             <label class="form-label">Route Name</label>
-                            <input type="text" id="name"
+                            <input type="text" id="route_name"
                                    class="form-control"
                                    placeholder="user.view">
                         </div>
@@ -141,7 +141,7 @@
 <script>
     document.getElementById('addPermissionBtn').addEventListener('click', function () {
 
-        let route = name.value.trim();
+        let route = route_name.value.trim();
         let name  = permission_name.value.trim();
         let type  = permission_type.value;
         let group = group_name.value;
@@ -159,7 +159,7 @@
             <tr>
                 <td>
                     ${route}
-                    <input type="hidden" name="permissions[${index}][name]" value="${route}">
+                    <input type="hidden" name="permissions[${index}][route_name]" value="${route}">
                 </td>
                 <td>
                     ${name}
@@ -183,7 +183,7 @@
 
         // Keep the last values in the fields
         // Only reset if you want a "fresh" form
-        // name.value = '';
+        // route_name.value = '';
         // permission_name.value = '';
         // permission_type.value = '';
         // group_name.value = '';
@@ -213,7 +213,7 @@
     });
 
     document.querySelector('form[action="{{ route('permission.store') }}"]').addEventListener('submit', function () {
-        name.value = '';
+        route_name.value = '';
         permission_name.value = '';
         permission_type.value = '';
         group_name.value = '';

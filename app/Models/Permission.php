@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Permission extends Model
 {
     protected $fillable = [
-        'route_name',
+        'name',
         'permission_name',
         'permission_type',
         'group_name',

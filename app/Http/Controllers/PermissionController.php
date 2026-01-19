@@ -34,7 +34,7 @@ class PermissionController extends Controller
         // Log::info($request->all());
         $request->validate([
             'permissions' => 'required|array|min:1',
-            'permissions.*.name' => 'required|string',
+            'permissions.*.route_name' => 'required|string',
             'permissions.*.permission_name' => 'required|string',
             'permissions.*.permission_type' => 'required|in:view,create,edit,delete',
             'permissions.*.group_name' => 'required|string',
@@ -49,7 +49,7 @@ class PermissionController extends Controller
             }
 
             $created = Permission::firstOrCreate(
-                ['name' => $permission['name']],
+                ['name' => $permission['route_name']],
                 $permission
             );
 
@@ -80,7 +80,7 @@ class PermissionController extends Controller
         $permission = Permission::findOrFail($id);
 
         $request->validate([
-            'name' => ['required', 'string', 'max:100', 'unique:permissions,name,' . $permission->id],
+            'route_name' => ['required', 'string', 'max:100', 'unique:permissions,name,' . $permission->id],
             'permission_name' => ['required', 'string', 'max:100'],
             'permission_type' => ['required', 'in:view,create,edit,delete'],
             'group_name' => ['required', 'string', 'max:100'],
@@ -89,7 +89,7 @@ class PermissionController extends Controller
         $type = $request->permission_type === 'delete' ? 'destroy' : $request->permission_type;
 
         $permission->update([
-            'name' => $request->name,
+            'name' => $request->route_name,
             'permission_name' => $request->permission_name,
             'permission_type' => $type,
             'group_name' => $request->group_name,
