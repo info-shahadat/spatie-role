@@ -63,14 +63,14 @@
                             @enderror
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label for="permission_type" class="form-label">Permission Type</label>
                             <select name="permission_type"
                                     id="permission_type"
                                     class="form-select @error('permission_type') is-invalid @enderror"
                                     required>
                                 <option value="">Select Type --</option>
-                                @foreach(['view','create','edit','delete'] as $type)
+                                @foreach(['view','create','edit','destroy'] as $type)
                                     <option value="{{ $type }}" {{ old('permission_type', $permission->permission_type) == $type ? 'selected' : '' }}>
                                         {{ ucfirst($type) }}
                                     </option>
@@ -81,7 +81,7 @@
                             @enderror
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label for="group_name" class="form-label">Group Name</label>
                             <select name="group_name"
                                     id="group_name"
@@ -98,6 +98,21 @@
                             @error('group_name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Guard Name</label>
+                            <select id="guard_name" name="guard_name" class="form-select">
+                                <option value="">Select</option>
+                                <option value="web"
+                                    {{ old('guard_name', $permission->guard_name) === 'web' ? 'selected' : '' }}>
+                                    Web
+                                </option>
+                                <option value="api"
+                                    {{ old('guard_name', $permission->guard_name) === 'api' ? 'selected' : '' }}>
+                                    Api
+                                </option>
+                            </select>
                         </div>
 
                     </div>

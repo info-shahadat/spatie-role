@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Permission;
 use App\Models\PermissionGroup;
-use App\Models\Role;
+use Spatie\Permission\Models\Role;
 use App\Models\RoleHasPermission;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Validation\Rule;
 
 class RoleController extends Controller
 {
@@ -25,7 +25,7 @@ class RoleController extends Controller
         $data = $roles->map(function ($role) {
             return [
                 'id' => $role->id,
-                'name' => $role->name,
+                'name' => ucfirst($role->name) . '(' . $role->guard_name . ')',
                 'permissions' => $role->permissions->pluck('name'),
             ];
         });
@@ -41,45 +41,45 @@ class RoleController extends Controller
 
     public function store(Request $request)
     {
+        // Log::info('Creating role with data', $request->all());
+
         $request->validate([
-            'name' => 'required|string|max:255|unique:roles,name',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('roles', 'name')->where(
+                    fn ($q) => $q->where('guard_name', $request->guard_name)
+                ),
+            ],
+            'guard_name' => 'required|in:web,api',
             'permissions' => 'required|array|min:1',
+            'permissions.*' => 'exists:permissions,id',
         ]);
 
-        DB::beginTransaction();
-
         try {
-            $role = Role::create([
-                'name' => strtolower($request->name),
-                'guard_name' => 'web',
-            ]);
+            DB::transaction(function () use ($request) {
+                $role = Role::create([
+                    'name' => strtolower($request->name),
+                    'guard_name' => $request->guard_name,
+                ]);
 
-            foreach ($request->permissions as $permissionId => $types) {
-                $exists = RoleHasPermission::where('role_id', $role->id)
-                    ->where('permission_id', $permissionId)
-                    ->exists();
+                // Log::info('Role created with ID: ' . $role->id);
 
-                if (!$exists) {
-                    $saved = RoleHasPermission::create([
-                        'role_id' => $role->id,
-                        'permission_id' => $permissionId,
-                    ]);
+                $role->syncPermissions(array_map('intval', $request->permissions));
+            });
 
-                    if (!$saved) {
-                        throw new \Exception("Failed to save permission ID {$permissionId}");
-                    }
-                }
-            }
-
-            DB::commit();
-
-            return redirect()->route('role.index')->with('success', 'Role created successfully.');
+            return redirect()
+                ->route('role.index')
+                ->with('success', 'Role created successfully.');
 
         } catch (\Exception $e) {
-            DB::rollBack();
+            // Log::error('Role creation failed', ['error' => $e->getMessage()]);
 
-            return redirect()->back()->withInput()
-                ->with('error', 'Failed to create role: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Failed to create role.');
         }
     }
 
@@ -96,26 +96,43 @@ class RoleController extends Controller
         $role = Role::findOrFail($id);
 
         $request->validate([
-            'name' => 'required|string|max:255|unique:roles,name,' . $role->id,
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('roles', 'name')
+                    ->ignore($role->id)
+                    ->where(fn ($q) => $q->where('guard_name', $role->guard_name)),
+            ],
             'permissions' => 'required|array|min:1',
+            'permissions.*' => 'exists:permissions,id',
         ]);
 
-        $role->update([
-            'name' => strtolower($request->name),
-        ]);
-
-        RoleHasPermission::where('role_id', $role->id)->delete();
-
-        foreach ($request->permissions as $permission_id => $types) {
-            foreach ($types as $type) {
-                RoleHasPermission::create([
-                    'role_id' => $role->id,
-                    'permission_id' => $permission_id,
+        try {
+            DB::transaction(function () use ($request, $role) {
+                $role->update([
+                    'name' => strtolower($request->name),
                 ]);
-            }
-        }
 
-        return redirect()->route('role.index')->with('success', 'Role updated successfully.');
+                // Cast IDs to int for safety
+                $role->syncPermissions(array_map('intval', $request->permissions));
+            });
+
+            return redirect()
+                ->route('role.index')
+                ->with('success', 'Role updated successfully.');
+
+        } catch (\Exception $e) {
+            Log::error('Role update failed', [
+                'role_id' => $role->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Failed to update role.');
+        }
     }
 
     public function destroy($id)

@@ -18,9 +18,16 @@ class PermissionController extends Controller
 
     public function data()
     {
-        $permissions = Permission::orderBy('created_at', 'desc')->get();
+        $permissions = Permission::query()
+            ->orderBy('group_name')
+            ->orderBy('guard_name')
+            ->orderBy('permission_name')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        return response()->json(['data' => $permissions]);
+        return response()->json([
+            'data' => $permissions
+        ]);
     }
 
     public function create()
@@ -36,17 +43,18 @@ class PermissionController extends Controller
             'permissions' => 'required|array|min:1',
             'permissions.*.route_name' => 'required|string',
             'permissions.*.permission_name' => 'required|string',
-            'permissions.*.permission_type' => 'required|in:view,create,edit,delete',
+            'permissions.*.permission_type' => 'required|in:view,create,edit,destroy',
             'permissions.*.group_name' => 'required|string',
+            'permissions.*.guard_name' => 'required|string',
         ]);
 
         $duplicates = false;
 
         foreach ($request->permissions as $permission) {
 
-            if ($permission['permission_type'] === 'delete') {
-                $permission['permission_type'] = 'destroy';
-            }
+            // if ($permission['permission_type'] === 'delete') {
+            //     $permission['permission_type'] = 'destroy';
+            // }
 
             $created = Permission::firstOrCreate(
                 ['name' => $permission['route_name']],
@@ -77,22 +85,26 @@ class PermissionController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Log::info($request->all());
         $permission = Permission::findOrFail($id);
 
         $request->validate([
-            'route_name' => ['required', 'string', 'max:100', 'unique:permissions,name,' . $permission->id],
+            'name' => ['required', 'string', 'max:100', 'unique:permissions,name,' . $permission->id],
             'permission_name' => ['required', 'string', 'max:100'],
-            'permission_type' => ['required', 'in:view,create,edit,delete'],
+            'permission_type' => ['required', 'in:view,create,edit,destroy'],
             'group_name' => ['required', 'string', 'max:100'],
+            'guard_name' => ['required', 'string', 'max:5'],
+
         ]);
 
-        $type = $request->permission_type === 'delete' ? 'destroy' : $request->permission_type;
+        // $type = $request->permission_type === 'delete' ? 'destroy' : $request->permission_type;
 
         $permission->update([
-            'name' => $request->route_name,
+            'name' => $request->name,
             'permission_name' => $request->permission_name,
-            'permission_type' => $type,
+            'permission_type' => $request->permission_type,
             'group_name' => $request->group_name,
+            'guard_name' => $request->guard_name,
         ]);
 
         return redirect()->route('permission.index')->with('success', 'Updated successfully.');

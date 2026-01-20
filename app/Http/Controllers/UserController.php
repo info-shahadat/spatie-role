@@ -127,8 +127,10 @@ class UserController extends Controller
                 'email'      => $user->email,
                 'mobile'     => $user->mobile ?? '-',
                 'department' => $user->department ?? '-',
-                'role'       => $user->roles->map(fn($r) => ucfirst($r->name))->implode(', '),
-            ];
+                'role'       => $user->roles
+                    ->map(fn ($r) => ucfirst($r->name) . ' (' . $r->guard_name . ')')
+                    ->implode(', '),
+                ];
         });
 
         return response()->json(['data' => $users]);
@@ -198,7 +200,7 @@ class UserController extends Controller
     //Api
     public function apiData(Request $request)
     {
-        Log::info($request);
+        // Log::info($request);
 
         $user = auth('api')->user();
         // Log::info($user);

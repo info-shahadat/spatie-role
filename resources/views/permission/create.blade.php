@@ -51,7 +51,7 @@
                                    placeholder="user.view">
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label">Permission Name</label>
                             <input type="text" id="permission_name"
                                    class="form-control"
@@ -65,11 +65,11 @@
                                 <option value="view">View</option>
                                 <option value="create">Create</option>
                                 <option value="edit">Edit</option>
-                                <option value="delete">Delete</option>
+                                <option value="destroy">Destroy</option>
                             </select>
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label">Group</label>
                             <select id="group_name" class="form-select">
                                 <option value="">Select</option>
@@ -78,6 +78,15 @@
                                         {{ $group->group_name }}
                                     </option>
                                 @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="form-label">Guard Name</label>
+                            <select id="guard_name" class="form-select">
+                                <option value="">Select</option>
+                                <option value="web" selected>Web</option>
+                                <option value="api">Api</option>
                             </select>
                         </div>
 
@@ -103,6 +112,7 @@
                                     <th>Name</th>
                                     <th>Type</th>
                                     <th>Group</th>
+                                    <th>Guard</th>
                                     <th width="80">Action</th>
                                 </tr>
                             </thead>
@@ -145,8 +155,9 @@
         let name  = permission_name.value.trim();
         let type  = permission_type.value;
         let group = group_name.value;
+        let guard = guard_name.value;
 
-        if (!route || !name || !type || !group) {
+        if (!route || !name || !type || !group || !guard) {
             alert('All fields are required');
             return;
         }
@@ -173,6 +184,10 @@
                     ${group}
                     <input type="hidden" name="permissions[${index}][group_name]" value="${group}">
                 </td>
+                <td>
+                    ${guard}
+                    <input type="hidden" name="permissions[${index}][guard_name]" value="${guard}">
+                </td>
                 <td class="text-center">
                     <button type="button" class="btn btn-sm btn-danger removeRow">✕</button>
                 </td>
@@ -180,13 +195,6 @@
         `;
 
         permissionTable.insertAdjacentHTML('beforeend', row);
-
-        // Keep the last values in the fields
-        // Only reset if you want a "fresh" form
-        // route_name.value = '';
-        // permission_name.value = '';
-        // permission_type.value = '';
-        // group_name.value = '';
     });
 
     document.addEventListener('click', function (e) {
@@ -217,6 +225,7 @@
         permission_name.value = '';
         permission_type.value = '';
         group_name.value = '';
+        grard_name.value = '';
     });
 </script>
 

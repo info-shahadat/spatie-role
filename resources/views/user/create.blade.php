@@ -114,7 +114,7 @@
                                     <option value="">Select Role</option>
                                     @foreach ($roles as $role)
                                         <option value="{{ $role->id }}" {{ old('role') == $role->id ? 'selected' : '' }}>
-                                            {{ ucfirst($role->name) }}
+                                            {{ ucfirst($role->name) }} ({{ $role->guard_name }})
                                         </option>
                                     @endforeach
                                 </select>

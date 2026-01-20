@@ -33,6 +33,7 @@
                             <th>Permission Name</th>
                             <th>Permission Type</th>
                             <th>Permission Group</th>
+                            <th>Guard</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -57,6 +58,7 @@
                     { data: 'permission_name' },
                     { data: 'permission_type' },
                     { data: 'group_name' },
+                    { data: 'guard_name' },
                     {
                         data: null,
                         render: function (data, type, row) {

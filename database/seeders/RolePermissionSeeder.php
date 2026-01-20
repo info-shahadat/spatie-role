@@ -87,6 +87,30 @@ class RolePermissionSeeder extends Seeder
                 'permission_type' => 'destroy',
                 'group_name'      => 'User Management',
             ],
+            [
+                'name'            => 'permission.group.view',
+                'permission_name' => 'Permission Group',
+                'permission_type' => 'view',
+                'group_name'      => 'User Management',
+            ],
+            [
+                'name'            => 'permission.group.create',
+                'permission_name' => 'Permission Group',
+                'permission_type' => 'create',
+                'group_name'      => 'User Management',
+            ],
+            [
+                'name'            => 'permission.group.edit',
+                'permission_name' => 'Permission Group',
+                'permission_type' => 'edit',
+                'group_name'      => 'User Management',
+            ],
+            [
+                'name'            => 'permission.group.destroy',
+                'permission_name' => 'Permission Group',
+                'permission_type' => 'destroy',
+                'group_name'      => 'User Management',
+            ],
         ];
 
         /*
