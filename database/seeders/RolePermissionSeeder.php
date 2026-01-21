@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\PermissionGroup;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -113,6 +114,58 @@ class RolePermissionSeeder extends Seeder
             ],
         ];
 
+        $ApiPermissions = [
+            [
+                'name'            => 'api.user.view',
+                'permission_name' => 'User',
+                'permission_type' => 'view',
+                'group_name'      => 'User Management',
+            ],
+            [
+                'name'            => 'api.user.create',
+                'permission_name' => 'User',
+                'permission_type' => 'create',
+                'group_name'      => 'User Management',
+            ],
+            [
+                'name'            => 'api.user.edit',
+                'permission_name' => 'User',
+                'permission_type' => 'edit',
+                'group_name'      => 'User Management',
+            ],
+            [
+                'name'            => 'api.user.destroy',
+                'permission_name' => 'User',
+                'permission_type' => 'destroy',
+                'group_name'      => 'User Management',
+            ],
+
+            [
+                'name'            => 'api.role.view',
+                'permission_name' => 'Role',
+                'permission_type' => 'view',
+                'group_name'      => 'User Management',
+            ],
+            [
+                'name'            => 'api.role.create',
+                'permission_name' => 'Role',
+                'permission_type' => 'create',
+                'group_name'      => 'User Management',
+            ],
+            [
+                'name'            => 'api.role.edit',
+                'permission_name' => 'Role',
+                'permission_type' => 'edit',
+                'group_name'      => 'User Management',
+            ],
+            [
+                'name'            => 'api.role.destroy',
+                'permission_name' => 'Role',
+                'permission_type' => 'destroy',
+                'group_name'      => 'User Management',
+            ],
+        ];
+
         /*
         |--------------------------------------------------------------------------
         | WEB
@@ -146,7 +199,7 @@ class RolePermissionSeeder extends Seeder
         | API
         |--------------------------------------------------------------------------
         */
-        foreach ($permissions as $permission) {
+        foreach ($ApiPermissions as $permission) {
             Permission::updateOrCreate(
                 [
                     'name'       => $permission['name'],
@@ -168,5 +221,10 @@ class RolePermissionSeeder extends Seeder
         $apiAdmin->syncPermissions(
             Permission::where('guard_name', 'api')->get()
         );
+
+        $permissionGroups = PermissionGroup::firstOrCreate([
+            'group_name' => 'User Management',
+        ]);
+
     }
 }

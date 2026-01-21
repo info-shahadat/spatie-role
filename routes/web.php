@@ -6,9 +6,15 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
+
+Route::get('/clear', function () {
+    Artisan::call('optimize');
+    return "Cleared!";
+});
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -55,7 +61,7 @@ Route::delete ( '/user-delete/{id}', [ UserController::class, 'destroy' ] )->mid
 //Password Reset
 Route::middleware(['auth'])->group(function () {
     Route::get('profile', [UserController::class, 'profile'])->name('profile.view');
-    Route::post('password-reset', [UserController::class, 'updatePass'])->name('password.update');
+    Route::post('password-reset', [UserController::class, 'updatePass'])->name('password.update.view');
     Route::put('profile-update', [UserController::class, 'profileUpdate'])->name('profile.update');
 });
 
